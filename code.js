@@ -33,9 +33,25 @@ const getWordList = async function()
 
 
 
+const populateTwoLetterWords = function()
+{
+  const span = document.getElementById('two-letter-words');
+
+  for(const word of WORD_LIST)
+  {
+    if(word.length == 2)
+    {
+      span.innerHTML += " " + word;
+    }
+  }
+}
+
+
+
 const init = async function()
 {
   await getWordList();
+  populateTwoLetterWords();
   createBoardAndTray();
 };
 
