@@ -13,21 +13,25 @@ var draggedTrayCell;
 
 
 
-const getWordList = function()
+const getWordList = async function()
 {
   const wordListURL = 'ENABLE.txt';
 
-  fetch(wordListURL)
-    .then(response => { WORD_LIST = response.text(); })
-    .then(() => start());
+  const contents = await fetch(wordListURL).then(response => response.text());
+
+  WORD_LIST = contents.split('\n');
 };
 
 
 
-const init = function()
+const init = async function()
 {
-  getWordList();
+  await getWordList();
   createBoardAndTray();
+
+  console.log(WORD_LIST[0]);
+  console.log(WORD_LIST[1]);
+  console.log(WORD_LIST[2]);
 };
 
 
@@ -398,11 +402,4 @@ const undo = function()
 
   const message = document.getElementById('message');
   message.innerHTML = '';
-};
-
-
-
-const start = function()
-{
-  console.log(WORD_LIST);
 };
