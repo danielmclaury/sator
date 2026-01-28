@@ -70,3 +70,11 @@
 {
     background-color: grey;
 }
+
+.glowing
+{
+  box-shadow:
+    0 0 6px 3px yellow,
+    0 0 10px 1px magenta,
+    0 0 14px 9px orangered; 
+}

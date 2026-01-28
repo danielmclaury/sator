@@ -390,7 +390,49 @@ const updateScore = function()
   }
 
   document.getElementById('score').innerHTML = score;
+
+  highlight(0, rectangles);
 };
+
+
+
+const highlight = function(index, rectangles)
+{
+  if(index >= rectangles.length)
+  {
+    for(const td of [...document.getElementsByClassName('glowing')])
+    {
+      td.classList.remove('glowing');
+    }
+
+    return;
+  }
+
+  let [ startRow, startCol, width, height ] = rectangles[index];
+
+  for(let row = 0; row < BOARD_ROWS; ++row)
+  {
+    for(let col = 0; col < BOARD_COLS; ++col)
+    {
+      const insideRectangle = (
+           (startRow <= row) && (row < startRow + height)
+        && (startCol <= col) && (col < startCol + width));
+
+      const td = boardCells[row][col];
+      
+      if(insideRectangle)
+      {
+        td.classList.add('glowing');
+      }
+      else
+      {
+        td.classList.remove('glowing');
+      }
+    }
+  }
+  
+  setTimeout(()=>highlight(index + 1, rectangles), 250);
+}
 
 
 
