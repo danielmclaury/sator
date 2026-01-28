@@ -1,0 +1,72 @@
+#game 
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#board 
+{
+    margin-bottom: 20px;
+}
+
+#tray 
+{
+    display: flex;
+    justify-content: center;
+}
+
+#message
+{
+    height: 25px;
+    width: 500px;
+    margin-left: calc(-50vw + 50%);
+    background-color: steelblue;
+    color: white;
+    margin-top: 25px;
+}
+
+.board-cell
+{
+    font-family: monospace;
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid black;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.board-cell-empty
+{
+    background-color: white;
+}
+
+.board-cell-tentative
+{
+    background-color: lightcoral;
+}
+
+.board-cell-filled
+{
+    background-color: lightblue;
+}
+
+.tray-cell
+{
+    font-family: monospace;
+
+    size: 10px 10px;
+    padding: 10px 10px 10px 10px;
+}
+
+.tray-cell-unplaced
+{
+    background-color: lightcoral;
+}
+
+.tray-cell-placed
+{
+    background-color: grey;
+}

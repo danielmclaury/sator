@@ -1,0 +1,38 @@
+<html>
+
+<head>
+  <title>SATOR</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="code.js"></script>
+</head>
+
+<body onload="init();">
+  <h1>SATOR</h1>
+
+  <div id="game">
+
+    <div id="board">
+      <table id="board-table">
+
+      </table>
+    </div>
+
+    <div id="tray">
+      <table id="tray-table">
+        <tr id="tray-table-row">
+
+        </tr>
+      </table>
+
+      <input type="button" id="word-submit" value="submit" onclick="submit();" />
+      <input type="button" id="word-submit" value="clear" onclick="undo();" />
+    </div>
+
+    <div id="message"></div>
+  </div>
+
+  <span><i>SATOR uses the public-domain ENABLE word list by Alan Beale and M. Cooper</i></span>
+
+</body>
+
+</html>
