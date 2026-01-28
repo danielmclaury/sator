@@ -29,12 +29,15 @@ const getWordList = async function()
   {
     console.log('Could not fetch word list');
   }
+
+  console.log('getWordList end');
 };
 
 
 
 const populateTwoLetterWords = function()
 {
+  console.log('got here populateTwoLetterWords');
   const span = document.getElementById('two-letter-words');
 
   for(const word of WORD_LIST)
