@@ -1,9 +1,10 @@
 const BOARD_ROWS = 10;
 const BOARD_COLS = 10;
 
-const TRAY_LETTERS = 6;
+const TRAY_LETTERS = 8;
 
 var WORD_LIST = [];
+var WORD_SET = new Set();
 
 var boardCells = [];
 
@@ -17,9 +18,17 @@ const getWordList = async function()
 {
   const wordListURL = 'ENABLE.txt';
 
-  const contents = await fetch(wordListURL).then(response => response.text());
+  try
+  {
+    const contents = await fetch(wordListURL).then(response => response.text());
 
-  WORD_LIST = new Set(contents.split('\n'));
+    WORD_LIST = contents.split('\n');
+    WORD_SET = new Set(WORD_LIST);
+  }
+  catch
+  {
+    console.log('Could not fetch word list');
+  }
 };
 
 
@@ -34,26 +43,39 @@ const init = async function()
 
 const randomLetter = function()
 {
-  return String.fromCharCode(
-    'A'.charCodeAt(0) + Math.floor(Math.random() * 26));
+  if(WORD_LIST.length == 0)
+  {
+    return  String.fromCharCode(
+      'A'.charCodeAt(0) + Math.floor(Math.random() * 26));
+  }
+  else
+  {
+    const wordIndex = Math.floor(Math.random() * WORD_LIST.length);
+
+    const word = WORD_LIST[wordIndex];
+
+    const letterIndex = Math.floor(Math.random() * word.length);
+
+    return word[letterIndex];
+  }
 }
 
 
 
 const createBoardAndTray = function()
 {
-    var boardTableDiv = document.getElementById('board-table');
+    let boardTableDiv = document.getElementById('board-table');
     
-    for(var row = 0; row < BOARD_ROWS; ++row)
+    for(let row = 0; row < BOARD_ROWS; ++row)
     {
-      var tr = document.createElement('tr');
+      const tr = document.createElement('tr');
       boardTableDiv.appendChild(tr);
 
       boardCells.push([]);
 
-      for(var col = 0; col < BOARD_COLS; ++col)
+      for(let col = 0; col < BOARD_COLS; ++col)
       {
-        var td = document.createElement('td');
+        const td = document.createElement('td');
         td.id = `board-cell-${row+1}-${col+1}`;
         td.classList.add('board-cell');
         td.classList.add('board-cell-empty');
@@ -68,11 +90,11 @@ const createBoardAndTray = function()
       }
     }
 
-    var trayTableRow = document.getElementById('tray-table-row');
+    const trayTableRow = document.getElementById('tray-table-row');
 
-    for(var i = 0; i < TRAY_LETTERS; ++i)
+    for(let i = 0; i < TRAY_LETTERS; ++i)
     {
-      var traySlot = document.createElement('td');
+      const traySlot = document.createElement('td');
       traySlot.id = `tray-cell-${i+1}`;
       traySlot.classList.add('tray-cell');
       traySlot.classList.add('tray-cell-unplaced');
@@ -143,7 +165,15 @@ const handleBoardCellClick = function(event)
 
 const isWord = function(word)
 {
-  return WORD_LIST.has(word.toLowerCase());
+  if(WORD_SET.size == 0)
+  {
+    // testing
+    return true;
+  }
+  else
+  {
+    return WORD_SET.has(word.toLowerCase());
+  }
 }
 
 
@@ -154,13 +184,13 @@ const validateBoard = function()
 
   // check horizontal words
 
-  var newWords = 0;
+  let newWords = 0;
 
-  for(var row = 0; row < BOARD_ROWS; ++row)
+  for(let row = 0; row < BOARD_ROWS; ++row)
   {
-    var word = '';
+    let word = '';
 
-    for(var col = 0; col < BOARD_COLS; ++col)
+    for(let col = 0; col < BOARD_COLS; ++col)
     {
       const td = boardCells[row][col];
 
@@ -196,11 +226,11 @@ const validateBoard = function()
 
   // check vertical words
 
-  for(var col = 0; col < BOARD_ROWS; ++col)
+  for(let col = 0; col < BOARD_ROWS; ++col)
   {
-    var word = '';
+    let word = '';
 
-    for(var row = 0; row < BOARD_COLS; ++row)
+    for(let row = 0; row < BOARD_COLS; ++row)
     {
       const td = boardCells[row][col];
 
@@ -245,11 +275,11 @@ const validateBoard = function()
 
   const rowsWithTilePlaced = new Set();
   const colsWithTilePlaced = new Set();
-  var tilesPlaced = 0;
+  let tilesPlaced = 0;
 
-  for(var row = 0; row < BOARD_ROWS; ++row)
+  for(let row = 0; row < BOARD_ROWS; ++row)
   {
-    for(var col = 0; col < BOARD_COLS; ++col)
+    for(let col = 0; col < BOARD_COLS; ++col)
     {
       const td = boardCells[row][col];
 
@@ -264,14 +294,14 @@ const validateBoard = function()
 
   // check that all added letters were contiguous
 
-  var seenAdded = false;
-  var seenEmptyAfterAdded = false;
+  let seenAdded = false;
+  let seenEmptyAfterAdded = false;
 
   if(rowsWithTilePlaced.size == 1)
   {
     const row = [...rowsWithTilePlaced][0];
 
-    for(var col = 0; col < BOARD_COLS; ++col)
+    for(let col = 0; col < BOARD_COLS; ++col)
     {
       const td = boardCells[row][col];
 
@@ -303,7 +333,7 @@ const validateBoard = function()
   {
     const col = [...colsWithTilePlaced][0];
     
-    for(var row = 0; row < BOARD_COLS; ++row)
+    for(let row = 0; row < BOARD_COLS; ++row)
     {
       const td = boardCells[row][col];
 
@@ -343,6 +373,27 @@ const validateBoard = function()
 
 
 
+const updateScore = function()
+{
+  const grid = boardCells.map(row => row.map(td => td.classList.contains('board-cell-filled')));
+
+  const rectangles = decomposeIntoRectangles(grid);
+
+  console.log(rectangles);
+
+  let score = 0n;
+  for(const rectangle of rectangles)
+  {
+    let [ row, col, height, width ] = rectangle;
+
+    score += 2n ** BigInt(width * height);
+  }
+
+  document.getElementById('score').innerHTML = score;
+};
+
+
+
 const submit = function()
 {
   if(! validateBoard()) { return; }
@@ -360,6 +411,8 @@ const submit = function()
     placedTile.draggable = true;
     placedTile.innerHTML = randomLetter();
   }
+
+  updateScore();
 };
 
 
