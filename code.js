@@ -19,7 +19,7 @@ const getWordList = async function()
 
   const contents = await fetch(wordListURL).then(response => response.text());
 
-  WORD_LIST = contents.split('\n');
+  WORD_LIST = new Set(contents.split('\n'));
 };
 
 
@@ -28,10 +28,6 @@ const init = async function()
 {
   await getWordList();
   createBoardAndTray();
-
-  console.log(WORD_LIST[0]);
-  console.log(WORD_LIST[1]);
-  console.log(WORD_LIST[2]);
 };
 
 
@@ -147,9 +143,7 @@ const handleBoardCellClick = function(event)
 
 const isWord = function(word)
 {
-  // TODO : For now, just say any string containing a vowel is a word
-  const result = word.match(/[aeiouy]/gi);
-  return result;
+  return WORD_LIST.has(word.toLowerCase());
 }
 
 
