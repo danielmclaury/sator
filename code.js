@@ -137,6 +137,17 @@ const handleBoardCellClick = function(event)
 
 
 
+const singleConnectedComponent = function()
+{
+  const grid = boardCells.map(row => row.map(td => ! td.classList.contains('board-cell-empty')));
+
+  const components = countConnectedComponents(grid);
+
+  return (components == 1);
+}
+
+
+
 const validateBoard = function()
 {
   const message = document.getElementById('message');
@@ -230,101 +241,10 @@ const validateBoard = function()
     return false; 
   }
 
-  // check that all letters were added in a single row or column
-
-  const rowsWithTilePlaced = new Set();
-  const colsWithTilePlaced = new Set();
-  let tilesPlaced = 0;
-
-  for(let row = 0; row < BOARD_ROWS; ++row)
-  {
-    for(let col = 0; col < BOARD_COLS; ++col)
-    {
-      const td = boardCells[row][col];
-
-      if(td.classList.contains('board-cell-tentative'))
-      {
-        rowsWithTilePlaced.add(row);
-        colsWithTilePlaced.add(col);
-        ++tilesPlaced;
-      }
-    }
-  }
-
-  // check that all added letters were contiguous
-
-  let seenAdded = false;
-  let seenEmptyAfterAdded = false;
-
-  if(rowsWithTilePlaced.size == 1)
-  {
-    const row = [...rowsWithTilePlaced][0];
-
-    for(let col = 0; col < BOARD_COLS; ++col)
-    {
-      const td = boardCells[row][col];
-
-      if(! seenAdded)
-      {
-        if(td.classList.contains('board-cell-tentative'))
-        {
-          seenAdded = true;
-        }
-      }
-      else if(! seenEmptyAfterAdded)
-      {
-        if(td.classList.contains('board-cell-empty'))
-        {
-          seenEmptyAfterAdded = true;
-        }
-      }
-      else
-      {
-        if(td.classList.contains('board-cell-tentative'))
-        {
-          message.innerHTML = 'placed tiles must be consecutive';
-          return false;
-        }
-      }
-    }
-  }
-  else if(colsWithTilePlaced.size == 1)
-  {
-    const col = [...colsWithTilePlaced][0];
-    
-    for(let row = 0; row < BOARD_COLS; ++row)
-    {
-      const td = boardCells[row][col];
-
-      if(! seenAdded)
-      {
-        if(td.classList.contains('board-cell-tentative'))
-        {
-          seenAdded = true;
-        }
-      }
-      else if(! seenEmptyAfterAdded)
-      {
-        if(td.classList.contains('board-cell-empty'))
-        {
-          seenEmptyAfterAdded = true;
-        }
-      }
-      else
-      {
-        if(td.classList.contains('board-cell-tentative'))
-        {
-          message.innerHTML = 'placed tiles must be consecutive';
-          return false;
-        }
-      }
-    }
-  }
-  else
-  {
-    // Tiles were not all placed in one row or column
-    message.innerHTML = 'placed tiles must all be in the same row or column';
-    return false;
+  if(! singleConnectedComponent()) 
+  { 
+    message.innerHTML = 'must form a single contiguous region';
+    return false; 
   }
 
   return true;
