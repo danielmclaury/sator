@@ -3,8 +3,6 @@ const BOARD_COLS = 10;
 
 const TRAY_LETTERS = 8;
 
-var WORD_LIST = [];
-var WORD_SET = new Set();
 
 var boardCells = [];
 
@@ -14,30 +12,8 @@ var draggedTrayCell;
 
 
 
-const getWordList = async function()
-{
-  const wordListURL = 'ENABLE.txt';
-
-  try
-  {
-    const contents = await fetch(wordListURL).then(response => response.text());
-
-    WORD_LIST = contents.split('\n');
-    WORD_SET = new Set(WORD_LIST);
-  }
-  catch
-  {
-    console.log('Could not fetch word list');
-  }
-
-  console.log('getWordList end');
-};
-
-
-
 const populateTwoLetterWords = function()
 {
-  console.log('got here populateTwoLetterWords');
   const span = document.getElementById('two-letter-words');
 
   for(const word of WORD_LIST)
@@ -57,27 +33,6 @@ const init = async function()
   populateTwoLetterWords();
   createBoardAndTray();
 };
-
-
-
-const randomLetter = function()
-{
-  if(WORD_LIST.length == 0)
-  {
-    return  String.fromCharCode(
-      'A'.charCodeAt(0) + Math.floor(Math.random() * 26));
-  }
-  else
-  {
-    const wordIndex = Math.floor(Math.random() * WORD_LIST.length);
-
-    const word = WORD_LIST[wordIndex];
-
-    const letterIndex = Math.floor(Math.random() * word.length);
-
-    return word[letterIndex];
-  }
-}
 
 
 
@@ -179,21 +134,6 @@ const handleBoardCellClick = function(event)
     return;
   }
 };
-
-
-
-const isWord = function(word)
-{
-  if(WORD_SET.size == 0)
-  {
-    // testing
-    return true;
-  }
-  else
-  {
-    return WORD_SET.has(word.toLowerCase());
-  }
-}
 
 
 
@@ -397,8 +337,6 @@ const updateScore = function()
   const grid = boardCells.map(row => row.map(td => td.classList.contains('board-cell-filled')));
 
   const rectangles = decomposeIntoRectangles(grid);
-
-  console.log(rectangles);
 
   let score = 0n;
   for(const rectangle of rectangles)
