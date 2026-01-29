@@ -385,6 +385,8 @@ const undo = function()
 
 const restart = function()
 {
+  if(! confirm("Are you sure?")) { return; }
+  
   createBoardAndTray();
 
   const message = document.getElementById('message');
