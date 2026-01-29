@@ -16,11 +16,18 @@ const populateTwoLetterWords = function()
 {
   const span = document.getElementById('two-letter-words');
 
-  for(const word of WORD_LIST)
+  if(WORD_LIST.length == 0)
   {
-    if(word.length == 2)
+    span.innerHTML = '<i>(word list failed to load; running in test mode where all words are legal)</i>';
+  }
+  else
+  {
+    for(const word of WORD_LIST)
     {
-      span.innerHTML += " " + word;
+      if(word.length == 2)
+      {
+        span.innerHTML += " " + word;
+      }
     }
   }
 }
@@ -38,46 +45,50 @@ const init = async function()
 
 const createBoardAndTray = function()
 {
-    let boardTableDiv = document.getElementById('board-table');
-    
-    for(let row = 0; row < BOARD_ROWS; ++row)
+  boardCells = [];
+
+  let boardTableDiv = document.getElementById('board-table');
+  boardTableDiv.replaceChildren();
+  
+  for(let row = 0; row < BOARD_ROWS; ++row)
+  {
+    const tr = document.createElement('tr');
+    boardTableDiv.appendChild(tr);
+
+    boardCells.push([]);
+
+    for(let col = 0; col < BOARD_COLS; ++col)
     {
-      const tr = document.createElement('tr');
-      boardTableDiv.appendChild(tr);
+      const td = document.createElement('td');
+      td.id = `board-cell-${row+1}-${col+1}`;
+      td.classList.add('board-cell');
+      td.classList.add('board-cell-empty');
+      td.innerHTML = '&nbsp;';
+      td.ondragover = handleBoardCellDragOver;
+      td.ondrop = handleBoardCellDrop;
+      td.onclick = handleBoardCellClick;
 
-      boardCells.push([]);
+      tr.appendChild(td);
 
-      for(let col = 0; col < BOARD_COLS; ++col)
-      {
-        const td = document.createElement('td');
-        td.id = `board-cell-${row+1}-${col+1}`;
-        td.classList.add('board-cell');
-        td.classList.add('board-cell-empty');
-        td.innerHTML = '&nbsp;';
-        td.ondragover = handleBoardCellDragOver;
-        td.ondrop = handleBoardCellDrop;
-        td.onclick = handleBoardCellClick;
-
-        tr.appendChild(td);
-
-        boardCells[row].push(td);
-      }
+      boardCells[row].push(td);
     }
+  }
 
-    const trayTableRow = document.getElementById('tray-table-row');
+  const trayTableRow = document.getElementById('tray-table-row');
+  trayTableRow.replaceChildren();
 
-    for(let i = 0; i < TRAY_LETTERS; ++i)
-    {
-      const traySlot = document.createElement('td');
-      traySlot.id = `tray-cell-${i+1}`;
-      traySlot.classList.add('tray-cell');
-      traySlot.classList.add('tray-cell-unplaced');
-      traySlot.innerHTML = randomLetter();
-      traySlot.draggable = 'true';
-      traySlot.ondragstart = handleTrayCellDragStart;
+  for(let i = 0; i < TRAY_LETTERS; ++i)
+  {
+    const traySlot = document.createElement('td');
+    traySlot.id = `tray-cell-${i+1}`;
+    traySlot.classList.add('tray-cell');
+    traySlot.classList.add('tray-cell-unplaced');
+    traySlot.innerHTML = randomLetter();
+    traySlot.draggable = 'true';
+    traySlot.ondragstart = handleTrayCellDragStart;
 
-      trayTableRow.appendChild(traySlot);
-    }
+    trayTableRow.appendChild(traySlot);
+  }
 };
 
 
@@ -369,3 +380,16 @@ const undo = function()
   const message = document.getElementById('message');
   message.innerHTML = '';
 };
+
+
+
+const restart = function()
+{
+  createBoardAndTray();
+
+  const message = document.getElementById('message');
+  message.innerHTML = '';
+
+  const score = document.getElementById('score');
+  score.innerHTML = 0;
+}
