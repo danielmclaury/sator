@@ -10,7 +10,8 @@ var boardCells = [];
 
 var draggedTrayCell;
 
-
+var trayCellBeingTouched;
+var trayCellJustDropped;
 
 const populateTwoLetterWords = function()
 {
@@ -67,6 +68,7 @@ const createBoardAndTray = function()
       td.ondragover = handleBoardCellDragOver;
       td.ondrop = handleBoardCellDrop;
       td.onclick = handleBoardCellClick;
+      td.ontouchend = handleBoardCellTouchEnd;
 
       tr.appendChild(td);
 
@@ -86,46 +88,10 @@ const createBoardAndTray = function()
     traySlot.innerHTML = randomLetter();
     traySlot.draggable = 'true';
     traySlot.ondragstart = handleTrayCellDragStart;
+    traySlot.ontouchstart = handleTrayCellTouchStart;
+    traySlot.ontouchend = handleTrayCellTouchEnd;
 
     trayTableRow.appendChild(traySlot);
-  }
-};
-
-
-
-const handleTrayCellDragStart = function(event)
-{
-  draggedTrayCell = event.target;
-};
-
-
-
-const handleBoardCellDragOver = function(event)
-{
-  if(event.target.innerHTML == '&nbsp;')
-  {
-    event.preventDefault();
-  }
-};
-
-
-
-const handleBoardCellDrop = function(event)
-{
-  if(event.target.classList.contains('board-cell-empty'))
-  {
-    event.preventDefault();
-
-    event.target.classList.remove('board-cell-empty');
-    event.target.classList.add('board-cell-tentative');
-    event.target.innerHTML = draggedTrayCell.innerHTML;
-
-    draggedTrayCell.classList.remove('tray-cell-unplaced');
-    draggedTrayCell.classList.add('tray-cell-placed');
-    draggedTrayCell.draggable = false;
-
-    const message = document.getElementById('message');
-    message.innerHTML = '';
   }
 };
 
@@ -334,12 +300,27 @@ const submit = function()
     tentativePlacement.classList.add('board-cell-filled');
   }
 
+  const remainingLetters = [...document.getElementsByClassName('tray-cell-unplaced')].map(element => element.innerHTML);
+
   for(const placedTile of [...document.getElementsByClassName('tray-cell-placed')])
   {
     placedTile.classList.remove('tray-cell-placed');
     placedTile.classList.add('tray-cell-unplaced');
     placedTile.draggable = true;
-    placedTile.innerHTML = randomLetter();
+
+    let draw;
+    while(true)
+    {
+      draw = randomLetter();
+
+      const copiesAlreadyPresent = remainingLetters.filter(letter => (letter == draw)).length;
+
+      if(copiesAlreadyPresent == 0) { break; }
+
+      if(copiesAlreadyPresent == 1 && Math.random() > 0.5) { break; }
+    }
+
+    placedTile.innerHTML = draw;
   }
 
   updateScore();
@@ -394,4 +375,94 @@ const restart = function()
 
   const score = document.getElementById('score');
   score.innerHTML = 0;
+}
+
+
+
+const handleTrayCellDragStart = function(event)
+{
+  draggedTrayCell = event.target;
+};
+
+
+
+const handleBoardCellDragOver = function(event)
+{
+  if(event.target.innerHTML == '&nbsp;')
+  {
+    event.preventDefault();
+  }
+};
+
+
+
+const placeTile = function(trayCell, boardCell)
+{
+  boardCell.classList.remove('board-cell-empty');
+  boardCell.classList.add('board-cell-tentative');
+  boardCell.innerHTML = trayCell.innerHTML;
+
+  trayCell.classList.remove('tray-cell-unplaced');
+  trayCell.classList.add('tray-cell-placed');
+  trayCell.draggable = false;
+};
+
+
+
+const handleBoardCellDrop = function(event)
+{
+  if(event.target.classList.contains('board-cell-empty'))
+  {
+    event.preventDefault();
+
+    placeTile(draggedTrayCell, event.target);
+
+    const message = document.getElementById('message');
+    message.innerHTML = '';
+  }
+};
+
+
+
+const handleTrayCellTouchStart = function(event)
+{
+  event.preventDefault();
+
+  trayCellBeingTouched = event.target;
+}
+
+
+
+const handleTrayCellTouchEnd = function(event)
+{
+  event.preventDefault();
+
+  trayCellJustDropped = trayCellBeingTouched;
+  trayCellBeingTouched = null;
+}
+
+
+
+const handleBoardCellTouchEnd = function(event)
+{
+  event.preventDefault();
+
+  const message = document.getElementById('message'); // Debugging only
+
+  if(! (trayCellBeingTouched === null))
+  {
+    message.innerHTML = 'DEBUG trayCellBeingTouched';
+
+    placeTile(trayCellBeingTouched, event.target);
+
+    trayCellBeingTouched = null;
+  }
+  else if(! (trayCellJustDropped === null))
+  {
+    message.innerHTML = 'DEBUG trayCellJustDropped';
+
+    placeTile(trayCellJustDropped, event.target);
+
+    trayCellJustDropped = null;
+  }
 }
