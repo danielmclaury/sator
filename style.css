@@ -64,6 +64,8 @@
 
     size: 10px 10px;
     padding: 10px 10px 10px 10px;
+    user-select: none;
+    cursor: grab;
 }
 
 .tray-cell-unplaced
@@ -74,6 +76,26 @@
 .tray-cell-placed
 {
     background-color: grey;
+}
+
+.dragging
+{
+    opacity: 0.5;
+    background-color: lightgreen !important;
+    cursor: grabbing;
+}
+
+.drag-ghost
+{
+    font-family: monospace;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 5px 10px;
+    background-color: lightblue;
+    border: 2px solid darkblue;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%);
 }
 
 .glowing

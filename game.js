@@ -6,9 +6,11 @@ const TRAY_LETTERS = 8;
 
 var boardCells = [];
 
+var draggedTrayCell = null;
+var draggingPointerId = null;
+var isDragging = false;
 
-
-var draggedTrayCell;
+var ghostElement = null;
 
 
 
@@ -64,8 +66,6 @@ const createBoardAndTray = function()
       td.classList.add('board-cell');
       td.classList.add('board-cell-empty');
       td.innerHTML = '&nbsp;';
-      td.ondragover = handleBoardCellDragOver;
-      td.ondrop = handleBoardCellDrop;
       td.onclick = handleBoardCellClick;
 
       tr.appendChild(td);
@@ -84,8 +84,9 @@ const createBoardAndTray = function()
     traySlot.classList.add('tray-cell');
     traySlot.classList.add('tray-cell-unplaced');
     traySlot.innerHTML = randomLetter();
-    traySlot.draggable = 'true';
-    traySlot.ondragstart = handleTrayCellDragStart;
+    traySlot.onpointerdown = handleTrayCellPointerDown;
+    traySlot.onpointermove = handleTrayCellPointerMove;
+    traySlot.onpointerup = handleTrayCellPointerUp;
 
     trayTableRow.appendChild(traySlot);
   }
@@ -302,7 +303,6 @@ const submit = function()
   {
     placedTile.classList.remove('tray-cell-placed');
     placedTile.classList.add('tray-cell-unplaced');
-    placedTile.draggable = true;
 
     let draw;
     while(true)
@@ -318,6 +318,9 @@ const submit = function()
 
     placedTile.innerHTML = draw;
   }
+
+  const message = document.getElementById('message');
+  message.innerHTML = '';
 
   updateScore();
 };
@@ -337,7 +340,6 @@ const unplaceTile = function(placedTile)
 {
   placedTile.classList.remove('tray-cell-placed');
   placedTile.classList.add('tray-cell-unplaced');
-  placedTile.draggable = true;
 }
 
 
@@ -375,18 +377,50 @@ const restart = function()
 
 
 
-const handleTrayCellDragStart = function(event)
+const handleTrayCellPointerDown = function(event)
 {
-  draggedTrayCell = event.target;
+  if(event.isPrimary && !event.target.classList.contains('tray-cell-placed'))
+  {
+    draggingPointerId = event.pointerId;
+    draggedTrayCell = event.target;
+    isDragging = false;
+    event.target.setPointerCapture(event.pointerId);
+    document.addEventListener('pointermove', handleDocumentPointerMove);
+  }
 };
 
 
 
-const handleBoardCellDragOver = function(event)
+const handleTrayCellPointerMove = function(event)
 {
-  if(event.target.innerHTML == '&nbsp;')
+  if(event.isPrimary && draggingPointerId === event.pointerId && draggedTrayCell)
   {
-    event.preventDefault();
+    if(!isDragging)
+    {
+      isDragging = true;
+      draggedTrayCell.classList.add('dragging');
+      
+      ghostElement = document.createElement('div');
+      ghostElement.classList.add('drag-ghost');
+      ghostElement.innerHTML = draggedTrayCell.innerHTML;
+      ghostElement.style.position = 'fixed';
+      ghostElement.style.pointerEvents = 'none';
+      ghostElement.style.zIndex = '10000';
+      ghostElement.style.left = event.clientX + 'px';
+      ghostElement.style.top = event.clientY + 'px';
+      document.body.appendChild(ghostElement);
+    }
+  }
+};
+
+
+
+const handleDocumentPointerMove = function(event)
+{
+  if(ghostElement && draggingPointerId === event.pointerId)
+  {
+    ghostElement.style.left = event.clientX + 'px';
+    ghostElement.style.top = event.clientY + 'px';
   }
 };
 
@@ -400,20 +434,34 @@ const placeTile = function(trayCell, boardCell)
 
   trayCell.classList.remove('tray-cell-unplaced');
   trayCell.classList.add('tray-cell-placed');
-  trayCell.draggable = false;
 };
 
 
 
-const handleBoardCellDrop = function(event)
+const handleTrayCellPointerUp = function(event)
 {
-  if(event.target.classList.contains('board-cell-empty'))
+  if(event.isPrimary && draggingPointerId === event.pointerId && draggedTrayCell && isDragging)
   {
-    event.preventDefault();
+    // Find which element is at the pointer location
+    const elementAtPointer = document.elementFromPoint(event.clientX, event.clientY);
+    
+    if(elementAtPointer && elementAtPointer.classList.contains('board-cell-empty'))
+    {
+      placeTile(draggedTrayCell, elementAtPointer);
 
-    placeTile(draggedTrayCell, event.target);
+      const message = document.getElementById('message');
+      message.innerHTML = '';
+    }
 
-    const message = document.getElementById('message');
-    message.innerHTML = '';
+    draggedTrayCell.classList.remove('dragging');
+    if(ghostElement)
+    {
+      ghostElement.remove();
+      ghostElement = null;
+    }
+    document.removeEventListener('pointermove', handleDocumentPointerMove);
+    draggingPointerId = null;
+    draggedTrayCell = null;
+    isDragging = false;
   }
 };
