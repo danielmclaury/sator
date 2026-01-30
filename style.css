@@ -11,6 +11,15 @@ h1
     margin: 10px 0;
 }
 
+#container
+{
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
 #game 
 {
     display: flex;
