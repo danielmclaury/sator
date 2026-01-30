@@ -66,6 +66,7 @@
     padding: 10px 10px 10px 10px;
     user-select: none;
     cursor: grab;
+    touch-action: none;
 }
 
 .tray-cell-unplaced
