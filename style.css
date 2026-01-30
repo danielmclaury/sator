@@ -1,29 +1,63 @@
+body
+{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+h1
+{
+    text-align: center;
+    margin: 10px 0;
+}
+
 #game 
 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 10px;
 }
 
 #board 
 {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+#board-table
+{
+    border-collapse: collapse;
 }
 
 #tray 
 {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: 500px;
+}
+
+@media (max-width: 768px)
+{
+    #tray
+    {
+        width: 100%;
+    }
 }
 
 #message
 {
     height: 25px;
-    width: 500px;
-    margin-left: calc(-50vw + 50%);
+    width: 90%;
+    max-width: 500px;
     background-color: steelblue;
     color: white;
-    margin-top: 25px;
+    margin-top: 10px;
+    text-align: center;
+    line-height: 25px;
 }
 
 #two-letter-words
@@ -41,6 +75,27 @@
     border: 1px solid black;
     text-align: center;
     vertical-align: middle;
+    font-size: 16px;
+}
+
+@media (max-width: 768px)
+{
+    .board-cell
+    {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px)
+{
+    .board-cell
+    {
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+    }
 }
 
 .board-cell-empty
@@ -60,13 +115,38 @@
 
 .tray-cell
 {
+    display: table-cell;
     font-family: monospace;
-
-    size: 10px 10px;
-    padding: 10px 10px 10px 10px;
+    padding: 0;
     user-select: none;
     cursor: grab;
     touch-action: none;
+    font-size: 16px;
+    width: 35px;
+    height: 35px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid black;
+}
+
+@media (max-width: 768px)
+{
+    .tray-cell
+    {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px)
+{
+    .tray-cell
+    {
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+    }
 }
 
 .tray-cell-unplaced
