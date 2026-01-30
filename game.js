@@ -10,8 +10,7 @@ var boardCells = [];
 
 var draggedTrayCell;
 
-var trayCellBeingTouched;
-var trayCellJustDropped;
+
 
 const populateTwoLetterWords = function()
 {
@@ -68,7 +67,6 @@ const createBoardAndTray = function()
       td.ondragover = handleBoardCellDragOver;
       td.ondrop = handleBoardCellDrop;
       td.onclick = handleBoardCellClick;
-      td.ontouchend = handleBoardCellTouchEnd;
 
       tr.appendChild(td);
 
@@ -88,8 +86,6 @@ const createBoardAndTray = function()
     traySlot.innerHTML = randomLetter();
     traySlot.draggable = 'true';
     traySlot.ondragstart = handleTrayCellDragStart;
-    traySlot.ontouchstart = handleTrayCellTouchStart;
-    traySlot.ontouchend = handleTrayCellTouchEnd;
 
     trayTableRow.appendChild(traySlot);
   }
@@ -421,48 +417,3 @@ const handleBoardCellDrop = function(event)
     message.innerHTML = '';
   }
 };
-
-
-
-const handleTrayCellTouchStart = function(event)
-{
-  event.preventDefault();
-
-  trayCellBeingTouched = event.target;
-}
-
-
-
-const handleTrayCellTouchEnd = function(event)
-{
-  event.preventDefault();
-
-  trayCellJustDropped = trayCellBeingTouched;
-  trayCellBeingTouched = null;
-}
-
-
-
-const handleBoardCellTouchEnd = function(event)
-{
-  event.preventDefault();
-
-  const message = document.getElementById('message'); // Debugging only
-
-  if(! (trayCellBeingTouched === null))
-  {
-    message.innerHTML = 'DEBUG trayCellBeingTouched';
-
-    placeTile(trayCellBeingTouched, event.target);
-
-    trayCellBeingTouched = null;
-  }
-  else if(! (trayCellJustDropped === null))
-  {
-    message.innerHTML = 'DEBUG trayCellJustDropped';
-
-    placeTile(trayCellJustDropped, event.target);
-
-    trayCellJustDropped = null;
-  }
-}
